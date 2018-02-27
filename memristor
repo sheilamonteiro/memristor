@@ -1,0 +1,55 @@
+#!/usr/bin/env python2
+# -*- coding: utf-8 -*-
+"""
+Created on Sun Jan 21 19:38:20 2018
+
+@author: sheila
+"""
+
+import numpy as np
+from scipy import optimize
+import matplotlib.pyplot as plt
+
+
+kb = 0.025/300.0 #*Boltzmann constant in eV/K
+T = 300.0 #*room temperature in K
+q = 1 #charge of the impurity
+B = 1/(kb*T) #useful constant
+A = q/(kb*T) #useful constant
+R = 10.0 #resistor added in series to the circuit
+V0 = 0.6 #amplitude of the input AC source
+i0 = 10**-9 # base reverse current
+w = 1 #frequency of the input AC source
+Tf = 6*np.pi/w #Total time of the simulation (3 cycles)
+dt = 1/(100.0*w) # time step for the simulation
+t = 0
+Vint = 0
+#Vfonte = V0*np.sin(w*t) #source waveform
+#Vt = Vfonte - R*x final voltage at the sample
+
+
+
+Ic = []
+Vtotal = []
+
+#x=Ic
+def f(x):
+    return (i0/np.exp(Vint))*(np.exp(A*(V0*np.sin(w*t) - R*x)) - 1) - x
+
+while t < Tf:
+   
+    x = np.real(optimize.root(f,0).x)
+    Ic.append(x)
+    
+    Vt = V0*np.sin(w*t) - R*x
+    Vtotal.append(Vt)
+    
+    t += dt
+    Vint += B*Vt*dt
+    
+
+plt.plot(Vtotal,Ic, 'ro') 
+plt.title('Teste')
+plt.xlabel('Vtotal')
+plt.ylabel('Ic')
+plt.show()
